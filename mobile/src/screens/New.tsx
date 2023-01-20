@@ -1,11 +1,12 @@
 import { useState } from "react"
-import { View, Text, ScrollView, TextInput, TouchableOpacity } from "react-native"
+import { View, Text, ScrollView, TextInput, TouchableOpacity, Alert } from "react-native"
 
 import { BackButton } from "../components/BackButton"
 import { Checkbox } from "../components/Checkbox"
 
 import { Feather } from '@expo/vector-icons'
 import colors from "tailwindcss/colors"
+import { api } from "../lib/axios"
 
 const availableWeekDays = [
     'Domingo',
@@ -19,6 +20,7 @@ const availableWeekDays = [
 
 export const New: React.FC = () => {
 
+    const [title, setTitle] = useState("")
     const [weekDays, setWeekDays] = useState<number[]>([])
 
     const handleToggleWeeday = (weekDayIndex: number) => {
@@ -29,6 +31,33 @@ export const New: React.FC = () => {
 
             return [...prev, weekDayIndex]
         })
+    }
+
+    const handleCreateNewHabit = async() => {
+        try {
+            if(!title.trim()){
+                Alert.alert("Novo Hábito", "Informe o novo hábito")
+                return
+            }
+
+            if(weekDays.length <= 0){
+                Alert.alert("Novo Hábito", "Selecione pelo menos um dia da semana")
+                return
+            }
+
+            await api.post("/habits", {
+                title,
+                weekDays
+            })
+
+            setTitle("")
+            setWeekDays([])
+
+            Alert.alert("Novo Hábito", "Novo hábito criado com sucesso")
+        } catch (error: any) {
+            console.log(error)
+            Alert.alert("Novo Hábito", "Falha ao criar novo hábito")
+        }
     }
 
     return (
@@ -48,6 +77,8 @@ export const New: React.FC = () => {
                     className="h-12 pl-4 rounded-lg mt-3 bg-zinc-900 text-white border-2 border-zinc-800 focus:border-green-600"
                     placeholder="Ex: Exercícios, dormir bem, etc..."
                     placeholderTextColor={colors.zinc["400"]}
+                    value={ title }
+                    onChangeText={ setTitle }
                 />
                 <Text className="font-semibold mt-4 mb-3 text-white text-base">
                     Qual é a recorrência?
@@ -63,6 +94,7 @@ export const New: React.FC = () => {
                 <TouchableOpacity
                     activeOpacity={0.7}
                     className="flex-row w-full h-14 items-center justify-center bg-green-600 rounded-md mt-6"
+                    onPress={ handleCreateNewHabit }
                 >
                     <Feather
                         name="check"
