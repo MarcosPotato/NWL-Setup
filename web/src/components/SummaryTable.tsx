@@ -54,7 +54,7 @@ export const SummaryTable: React.FC = () => {
                             key={ date.getTime() } 
                             date={ date }
                             amount={ dayInSummary?.amount }
-                            completed={ dayInSummary?.completed }
+                            defaultCompleted={ dayInSummary?.completed }
                         />
                     )
                 }) }
